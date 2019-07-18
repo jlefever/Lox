@@ -45,7 +45,7 @@ namespace Lox.Tools
             builder.AppendLine("public abstract class " + baseName);
             builder.AppendLine("{");
             builder.Append(Indent("public abstract TResult Accept<TResult>"));
-            builder.AppendLine("(IVisitor<TResult> visitor);");
+            builder.AppendLine("(I" + baseName + "Visitor<TResult> visitor);");
             builder.Append("}");
             return builder.ToString();
         }
@@ -100,7 +100,7 @@ namespace Lox.Tools
         private static string DefineVisitor(IEnumerable<Type> types, string baseName)
         {
             var builder = new StringBuilder();
-            builder.AppendLine("public interface IVisitor<out TResult>");
+            builder.AppendLine("public interface I" + baseName + "Visitor<out TResult>");
             builder.AppendLine("{");
 
             foreach (var type in types)
@@ -118,7 +118,7 @@ namespace Lox.Tools
         {
             var builder = new StringBuilder();
             builder.Append("public override TResult Accept<TResult>");
-            builder.AppendLine("(IVisitor<TResult> visitor)");
+            builder.AppendLine("(I" + baseName + "Visitor<TResult> visitor)");
             builder.AppendLine("{");
             builder.Append(Indent("return visitor.Visit"));
             builder.AppendLine(type.TypeName + baseName + "(this);");
