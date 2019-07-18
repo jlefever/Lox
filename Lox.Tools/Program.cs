@@ -12,10 +12,10 @@ namespace Lox.Tools
 
             var descriptions = new[]
             {
-                "BinaryExpr   : Expr Left, Token Op, Expr Right",
-                "GroupingExpr : Expr Expression",
-                "LiteralExpr  : object Value",
-                "UnaryExpr    : Token Op, Expr Right"
+                "Binary   : Expr Left, Token Op, Expr Right",
+                "Grouping : Expr Expression",
+                "Literal  : object Value",
+                "Unary    : Token Op, Expr Right"
             };
 
             var generator = new AstGenerator(descriptions, baseName, @namespace);
