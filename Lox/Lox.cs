@@ -41,17 +41,27 @@ namespace Lox
             {
                 Console.Write(">> ");
                 Run(Console.ReadLine());
+                _hadError = false;
             }
         }
 
         private static void Run(string text)
         {
             var scanner = new Scanner(text);
+            var tokens = scanner.ScanTokens();
+            var parser = new Parser(tokens);
+            var expr = parser.Parse();
 
-            foreach (var token in scanner.ScanTokens())
-            {
-                Console.WriteLine(token);
-            }
+            // Stop if there was a syntax error.
+            if (_hadError) return;
+
+            Console.WriteLine(new AstPrinter().Print(expr));
+        }
+
+        private static void Report(int line, string where, string message)
+        {
+            Console.WriteLine($"[line {line}] Error{where}: {message}");
+            _hadError = true;
         }
 
         public static void Error(int line, string message)
@@ -59,10 +69,16 @@ namespace Lox
             Report(line, "", message);
         }
 
-        private static void Report(int line, string where, string message)
+        public static void Error(Token token, string message)
         {
-            Console.WriteLine($"[line {line}] Error{where}: {message}");
-            _hadError = true;
+            if (token.Kind == TokenKind.Eof)
+            {
+                Report(token.Line, " at end", message);
+            }
+            else
+            {
+                Report(token.Line, " at '" + token.Lexeme + "'", message);
+            }
         }
     }
 }
