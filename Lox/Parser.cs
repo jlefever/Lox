@@ -31,7 +31,12 @@ namespace Lox
 
         private Expr Expression()
         {
-            return Equality();
+            return Comma();
+        }
+
+        private Expr Comma()
+        {
+            return BinaryHelper(Equality, TokenKind.Comma);
         }
 
         private Expr Equality()
