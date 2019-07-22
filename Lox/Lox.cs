@@ -5,7 +5,9 @@ namespace Lox
 {
     public class Lox
     {
+        private static readonly Interpreter Interpreter = new Interpreter();
         private static bool _hadError;
+        private static bool _hadRuntimeError;
 
         public static void Main(string[] args)
         {
@@ -32,6 +34,11 @@ namespace Lox
             {
                 Environment.Exit((int)ExitCode.DataError);
             }
+
+            if (_hadRuntimeError)
+            {
+                Environment.Exit((int)ExitCode.SoftwareError);
+            }
         }
 
         private static void RunPrompt()
@@ -55,7 +62,7 @@ namespace Lox
             // Stop if there was a syntax error.
             if (_hadError) return;
 
-            Console.WriteLine(new AstPrinter().Print(expr));
+            Interpreter.Interpret(expr);
         }
 
         private static void Report(int line, string where, string message)
@@ -79,6 +86,12 @@ namespace Lox
             {
                 Report(token.Line, " at '" + token.Lexeme + "'", message);
             }
+        }
+
+        public static void RuntimeError(RuntimeError error)
+        {
+            Console.WriteLine(error.Message + "\n[line " + error.Token.Line + "]");
+            _hadRuntimeError = true;
         }
     }
 }

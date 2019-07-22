@@ -4,6 +4,7 @@
     public enum ExitCode
     {
         UsageError = 64,
-        DataError = 65
+        DataError = 65,
+        SoftwareError = 7
     }
 }
