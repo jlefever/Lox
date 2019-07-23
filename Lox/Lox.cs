@@ -57,12 +57,12 @@ namespace Lox
             var scanner = new Scanner(text);
             var tokens = scanner.ScanTokens();
             var parser = new Parser(tokens);
-            var expr = parser.Parse();
+            var statements = parser.Parse();
 
             // Stop if there was a syntax error.
             if (_hadError) return;
 
-            Interpreter.Interpret(expr);
+            Interpreter.Interpret(statements);
         }
 
         private static void Report(int line, string where, string message)

@@ -8,22 +8,33 @@ namespace Lox.Tools
         {
             const string directory = "../../../../Lox/";
             const string @namespace = "Lox";
-            const string baseName = "Expr";
 
-            var descriptions = new[]
+            const string exprName = "Expr";
+            const string stmtName = "Stmt";
+
+            var expr = AstGenerator.DefineAst(new[]
             {
                 "Binary   : Expr Left, Token Op, Expr Right",
                 "Grouping : Expr Expression",
                 "Literal  : object Value",
                 "Unary    : Token Op, Expr Right"
-            };
+            }, exprName, @namespace);
 
-            var generator = new AstGenerator(descriptions, baseName, @namespace);
-            var ast = generator.DefineAst();
+            var stmt = AstGenerator.DefineAst(new[]
+            {
+                "Expression : Expr Expr",
+                "Print      : Expr Expr"
+            }, stmtName, @namespace);
 
-            var path = Path.Combine(directory, baseName + ".cs");
+            WriteFile(expr, directory, exprName);
+            WriteFile(stmt, directory, stmtName);
+        }
+
+        private static void WriteFile(string text, string directory, string name)
+        {
+            var path = Path.Combine(directory, name + ".cs");
             using var writer = new StreamWriter(path);
-            writer.WriteLine(ast);
+            writer.WriteLine(text);
         }
     }
 }

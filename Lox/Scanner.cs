@@ -207,7 +207,7 @@ namespace Lox
             { "if", If },
             { "nil", Nil },
             { "or", Or },
-            { "print", Print },
+            { "print", TokenKind.Print },
             { "return", Return },
             { "super", Super },
             { "this", This },

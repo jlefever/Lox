@@ -17,16 +17,34 @@ namespace Lox
             _tokens = tokens;
         }
 
-        public Expr Parse()
+        public IList<Stmt> Parse()
         {
-            try
+            var statements = new List<Stmt>();
+
+            while (!IsAtEnd())
             {
-                return Expression();
+                statements.Add(Statement());
             }
-            catch (ParseError)
-            {
-                return null;
-            }
+
+            return statements;
+        }
+
+        private Stmt Statement()
+        {
+            if (Match(TokenKind.Print)) return PrintStatement();
+            return ExpressionStatement();
+        }
+
+        private Stmt PrintStatement()
+        {
+            var value = Expression();
+            Consume(Semicolon, "Expect ';' after value.");
+            return new Print(value);
+        }
+
+        private Stmt ExpressionStatement()
+        {
+            throw new NotImplementedException();
         }
 
         private Expr Expression()
@@ -120,7 +138,7 @@ namespace Lox
                     case For:
                     case If:
                     case While:
-                    case Print:
+                    case TokenKind.Print:
                     case Return:
                         return;
                 }

@@ -1,17 +1,20 @@
 ﻿using System;
-
+using System.Collections;
+using System.Collections.Generic;
 using static Lox.TokenKind;
 
 namespace Lox
 {
-    public class Interpreter : IExprVisitor<object>
+    public class Interpreter : IExprVisitor<object>, IStmtVisitor<object>
     {
-        public void Interpret(Expr expr)
+        public void Interpret(IList<Stmt> statements)
         {
             try
             {
-                var value = Evaluate(expr);
-                Console.WriteLine(Stringify(value));
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
             }
             catch (RuntimeError error)
             {
@@ -165,9 +168,26 @@ namespace Lox
             }
         }
 
+        public object VisitExpressionStmt(Expression stmt)
+        {
+            Evaluate(stmt.Expr);
+            return null;
+        }
+
+        public object VisitPrintStmt(Print stmt)
+        {
+            Console.WriteLine(Stringify(Evaluate(stmt.Expr)));
+            return null;
+        }
+
         private object Evaluate(Expr expr)
         {
             return expr.Accept(this);
+        }
+
+        private void Execute(Stmt stmt)
+        {
+            stmt.Accept(this);
         }
     }
 }
