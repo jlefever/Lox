@@ -92,12 +92,15 @@ namespace Lox
         {
             while (IsAlphaNumeric(Peek())) Advance();
 
-            if (!Keywords.TryGetValue(Extract(), out var kind))
+            var text = Extract();
+
+            if (Keywords.TryGetValue(text, out var kind))
             {
-                kind = TokenKind.Identifier;
+                AddToken(kind);
+                return;
             }
 
-            AddToken(kind);
+            AddToken(TokenKind.Identifier, text);
         }
 
         private void Number()
