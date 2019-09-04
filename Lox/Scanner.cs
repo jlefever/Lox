@@ -215,7 +215,7 @@ namespace Lox
             { "super", Super },
             { "this", This },
             { "true", True },
-            { "var", Var },
+            { "var", TokenKind.Var },
             { "while", While },
         };
     }

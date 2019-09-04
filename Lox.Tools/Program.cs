@@ -14,16 +14,20 @@ namespace Lox.Tools
 
             var expr = AstGenerator.DefineAst(new[]
             {
+                "Assign   : Token Name, Expr Value",
                 "Binary   : Expr Left, Token Op, Expr Right",
                 "Grouping : Expr Expression",
                 "Literal  : object Value",
-                "Unary    : Token Op, Expr Right"
+                "Unary    : Token Op, Expr Right",
+                "Variable : Token Name"
             }, exprName, @namespace);
 
             var stmt = AstGenerator.DefineAst(new[]
             {
+                "Block      : ICollection<Stmt> Statements",
                 "Expression : Expr Expr",
-                "Print      : Expr Expr"
+                "Print      : Expr Expr",
+                "Var        : Token Name, Expr Initializer"
             }, stmtName, @namespace);
 
             WriteFile(expr, directory, exprName);

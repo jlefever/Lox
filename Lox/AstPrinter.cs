@@ -9,6 +9,11 @@ namespace Lox
             return expr.Accept(this);
         }
 
+        public string VisitAssignExpr(Assign expr)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public string VisitBinaryExpr(Binary expr)
         {
             return Paren(expr.Op.Lexeme, expr.Left, expr.Right);
@@ -27,6 +32,11 @@ namespace Lox
         public string VisitUnaryExpr(Unary expr)
         {
             return Paren(expr.Op.Lexeme, expr.Right);
+        }
+
+        public string VisitVariableExpr(Variable expr)
+        {
+            throw new System.NotImplementedException();
         }
 
         private string Paren(string name, params Expr[] exprs)

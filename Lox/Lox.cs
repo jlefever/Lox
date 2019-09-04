@@ -14,7 +14,7 @@ namespace Lox
             if (args.Length > 1)
             {
                 Console.WriteLine("Usage: lox [script]");
-                Environment.Exit((int)ExitCode.UsageError);
+                System.Environment.Exit((int)ExitCode.UsageError);
             }
             else if (args.Length == 1)
             {
@@ -32,12 +32,12 @@ namespace Lox
 
             if (_hadError)
             {
-                Environment.Exit((int)ExitCode.DataError);
+                System.Environment.Exit((int)ExitCode.DataError);
             }
 
             if (_hadRuntimeError)
             {
-                Environment.Exit((int)ExitCode.SoftwareError);
+                System.Environment.Exit((int)ExitCode.SoftwareError);
             }
         }
 

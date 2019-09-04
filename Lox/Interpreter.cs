@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using static Lox.TokenKind;
 
@@ -7,6 +6,8 @@ namespace Lox
 {
     public class Interpreter : IExprVisitor<object>, IStmtVisitor<object>
     {
+        private Environment _env = new Environment();
+
         public void Interpret(IList<Stmt> statements)
         {
             try
@@ -100,6 +101,11 @@ namespace Lox
             return null;
         }
 
+        public object VisitVariableExpr(Variable expr)
+        {
+            return _env.Get(expr.Name);
+        }
+
         private static void CheckNumberOperand(Token @operator, object operand)
         {
             if (operand is double)
@@ -110,7 +116,7 @@ namespace Lox
             throw new RuntimeError(@operator, "Operand must be a number");
         }
 
-        private void CheckNumberOperands(Token @operator, object left, object right)
+        private static void CheckNumberOperands(Token @operator, object left, object right)
         {
             if (left is double && right is double)
             {
@@ -146,7 +152,7 @@ namespace Lox
             }
         }
 
-        private string Stringify(object obj)
+        private static string Stringify(object obj)
         {
             switch (obj)
             {
@@ -180,6 +186,26 @@ namespace Lox
             return null;
         }
 
+        public object VisitVarStmt(Var stmt)
+        {
+            object value = null;
+
+            if (stmt.Initializer != null)
+            {
+                value = Evaluate(stmt.Initializer);
+            }
+
+            _env.Define(stmt.Name.Lexeme, value);
+            return null;
+        }
+
+        public object VisitAssignExpr(Assign expr)
+        {
+            var value = Evaluate(expr.Value);
+            _env.Assign(expr.Name, value);
+            return value;
+        }
+
         private object Evaluate(Expr expr)
         {
             return expr.Accept(this);
@@ -188,6 +214,31 @@ namespace Lox
         private void Execute(Stmt stmt)
         {
             stmt.Accept(this);
+        }
+
+        public object VisitBlockStmt(Block stmt)
+        {
+            ExecuteBlock(stmt.Statements, new Environment(_env));
+            return null;
+        }
+
+        private void ExecuteBlock(IEnumerable<Stmt> statements, Environment environment)
+        {
+            var previous = _env;
+
+            try
+            {
+                _env = environment;
+
+                foreach (var statement in statements)
+                {
+                    Execute(statement);
+                }
+            }
+            finally
+            {
+                _env = previous;
+            }
         }
     }
 }

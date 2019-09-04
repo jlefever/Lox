@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Reflection.Metadata;
 using static Lox.TokenKind;
 
 namespace Lox
@@ -23,15 +23,34 @@ namespace Lox
 
             while (!IsAtEnd())
             {
-                statements.Add(Statement());
+                statements.Add(Declaration());
             }
 
             return statements;
         }
 
+        private Stmt Declaration()
+        {
+            try
+            {
+                if (Match(TokenKind.Var))
+                {
+                    return VarDeclaration();
+                }
+
+                return Statement();
+            }
+            catch (ParseError)
+            {
+                Synchronize();
+                return null;
+            }
+        }
+
         private Stmt Statement()
         {
             if (Match(TokenKind.Print)) return PrintStatement();
+            if (Match(LeftBrace)) return new Block(Block());
             return ExpressionStatement();
         }
 
@@ -42,14 +61,65 @@ namespace Lox
             return new Print(value);
         }
 
+        private Stmt VarDeclaration()
+        {
+            var name = Consume(Identifier, "Expect variable name.");
+
+            Expr initializer = null;
+
+            if (Match(Equal))
+            {
+                initializer = Expression();
+            }
+
+            Consume(Semicolon, "Expect ';' after variable declaration.");
+            return new Var(name, initializer);
+        }
+
         private Stmt ExpressionStatement()
         {
-            throw new NotImplementedException();
+            var expr = Expression();
+            Consume(Semicolon, "Expect ';' after expression.");
+            return new Expression(expr);
+        }
+
+        private ICollection<Stmt> Block()
+        {
+            var statements = new LinkedList<Stmt>();
+
+            while (!Check(RightBrace) && !IsAtEnd())
+            {
+                statements.AddLast(Declaration());
+            }
+
+            Consume(RightBrace, "Expect '}' after block.");
+            return statements;
         }
 
         private Expr Expression()
         {
-            return Comma();
+            return Assignment();
+        }
+
+        // This is right-associative.
+        private Expr Assignment()
+        {
+            var expr = Comma();
+
+            if (Match(Equal))
+            {
+                var equals = Previous();
+                var value = Assignment();
+
+                if (expr is Variable variable)
+                {
+                    return new Assign(variable.Name, value);
+                }
+
+                Error(equals, "Invalid assignment target.");
+            }
+
+            return expr;
         }
 
         private Expr Comma()
@@ -100,6 +170,11 @@ namespace Lox
                 return new Literal(Previous().Literal);
             }
 
+            if (Match(Identifier))
+            {
+                return new Variable(Previous());
+            }
+
             if (Match(LeftParen))
             {
                 var expr = Expression();
@@ -134,7 +209,7 @@ namespace Lox
                 {
                     case Class:
                     case Fun:
-                    case Var:
+                    case TokenKind.Var:
                     case For:
                     case If:
                     case While:
